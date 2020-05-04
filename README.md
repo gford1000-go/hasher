@@ -11,7 +11,10 @@ The hasher package provides the `Hash()` function that returns a `DataHash`.
 An example of use is available in GoDocs.
 
 The objective here is to ensure consistency of hashing, regardless of the
-interface{} object that is passed to the `Hash()` function.
+`interface{}` object that is passed to the `Hash()` function. If the argument is
+not of type `[]byte` then `gob` is used to convert the argument to a `[]byte` slice.
+
+The hashing algorithm used is `sha256.Sum256`.
 
 
 Installing and building the library
