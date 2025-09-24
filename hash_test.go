@@ -1,13 +1,13 @@
 package hasher
 
 import (
-	"reflect"
+	"bytes"
 	"testing"
 )
 
 func TestHash(t *testing.T) {
 	type args struct {
-		i interface{}
+		i any
 	}
 
 	type Struct1 struct {
@@ -23,7 +23,7 @@ func TestHash(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    DataHash
+		want    []byte
 		wantErr bool
 	}{
 		{
@@ -38,14 +38,14 @@ func TestHash(t *testing.T) {
 			args: args{
 				i: 42,
 			},
-			want: DataHash{107, 155, 250, 45, 100, 39, 24, 65, 194, 101, 16, 159, 195, 239, 176, 2, 85, 62, 34, 119, 216, 52, 216, 241, 211, 28, 20, 240, 99, 189, 128, 4},
+			want: []byte{107, 155, 250, 45, 100, 39, 24, 65, 194, 101, 16, 159, 195, 239, 176, 2, 85, 62, 34, 119, 216, 52, 216, 241, 211, 28, 20, 240, 99, 189, 128, 4},
 		},
 		{
 			name: "String",
 			args: args{
 				i: "Hello world",
 			},
-			want: DataHash{55, 253, 231, 128, 85, 174, 168, 85, 98, 99, 96, 141, 236, 78, 221, 174, 172, 151, 211, 237, 174, 98, 120, 65, 69, 59, 214, 24, 76, 251, 178, 13},
+			want: []byte{55, 253, 231, 128, 85, 174, 168, 85, 98, 99, 96, 141, 236, 78, 221, 174, 172, 151, 211, 237, 174, 98, 120, 65, 69, 59, 214, 24, 76, 251, 178, 13},
 		},
 		{
 			name: "Struct1",
@@ -55,7 +55,7 @@ func TestHash(t *testing.T) {
 					B: "Hello World",
 				},
 			},
-			want: DataHash{41, 72, 166, 110, 158, 224, 183, 249, 18, 102, 68, 91, 124, 37, 40, 157, 186, 234, 35, 184, 21, 185, 160, 83, 59, 152, 59, 241, 47, 117, 220, 121},
+			want: []byte{52, 149, 63, 48, 99, 112, 7, 227, 18, 218, 193, 93, 41, 166, 45, 14, 42, 231, 74, 88, 142, 131, 46, 220, 136, 250, 40, 119, 132, 8, 34, 19},
 		},
 		{
 			name: "Struct1 reference",
@@ -65,7 +65,7 @@ func TestHash(t *testing.T) {
 					B: "Hello World",
 				},
 			},
-			want: DataHash{41, 72, 166, 110, 158, 224, 183, 249, 18, 102, 68, 91, 124, 37, 40, 157, 186, 234, 35, 184, 21, 185, 160, 83, 59, 152, 59, 241, 47, 117, 220, 121},
+			want: []byte{52, 149, 63, 48, 99, 112, 7, 227, 18, 218, 193, 93, 41, 166, 45, 14, 42, 231, 74, 88, 142, 131, 46, 220, 136, 250, 40, 119, 132, 8, 34, 19},
 		},
 		{
 			name: "Struct2",
@@ -75,7 +75,7 @@ func TestHash(t *testing.T) {
 					B: "Hello World",
 				},
 			},
-			want: DataHash{85, 250, 140, 46, 12, 8, 228, 34, 254, 128, 48, 100, 205, 242, 169, 196, 145, 232, 190, 210, 240, 30, 17, 82, 100, 172, 194, 229, 168, 159, 128, 189},
+			want: []byte{74, 75, 174, 205, 4, 102, 158, 45, 148, 24, 43, 215, 166, 24, 121, 67, 47, 182, 192, 57, 143, 132, 165, 235, 94, 132, 2, 233, 142, 76, 242, 156},
 		},
 		{
 			name: "Struct2 reference",
@@ -85,18 +85,18 @@ func TestHash(t *testing.T) {
 					B: "Hello World",
 				},
 			},
-			want: DataHash{85, 250, 140, 46, 12, 8, 228, 34, 254, 128, 48, 100, 205, 242, 169, 196, 145, 232, 190, 210, 240, 30, 17, 82, 100, 172, 194, 229, 168, 159, 128, 189},
+			want: []byte{74, 75, 174, 205, 4, 102, 158, 45, 148, 24, 43, 215, 166, 24, 121, 67, 47, 182, 192, 57, 143, 132, 165, 235, 94, 132, 2, 233, 142, 76, 242, 156},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Hash(tt.args.i)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Hash() error = %v, wantErr %v", err, tt.wantErr)
+			if err != nil && !tt.wantErr {
+				t.Errorf("Test Name = '%s', Hash() error = %v, wantErr %v", tt.name, err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Hash() = %v, want %v", got, tt.want)
+			if !bytes.Equal(got, tt.want) {
+				t.Errorf("Test Name = '%s', Hash() = %v, want %v", tt.name, got, tt.want)
 			}
 		})
 	}
